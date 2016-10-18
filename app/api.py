@@ -1,5 +1,12 @@
 #!flask/bin/python
 from flask import jsonify
+import models
+
+
+def add_user(json_body):
+    models.add_user(json_body['FIRST_NAME'], json_body[
+                    'LAST_NAME'], json_body['EMAIL'], json_body['AGE'], json_body['PASSWORD'])
+    return jsonify({'movie_id': "test"})
 
 
 def get_movie_by_id(movie_id):
