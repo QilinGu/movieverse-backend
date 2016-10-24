@@ -38,6 +38,19 @@ def add_user(first_name, last_name, email, age, password):
         return False, "MySQL error"
 
 
+def update_user_by_id(user_id, first_name, last_name, age):
+    update_query = "UPDATE USER SET FIRST_NAME='%s', LAST_NAME='%s',  AGE='%d' WHERE USERID='%d'" % (
+        first_name, last_name, age, user_id)
+    try:
+        cursor.execute(update_query)
+        conn.commit()
+        return True, "User updated successfully"
+    except MySQL.Error as e:
+        conn.rollback()
+        raise
+        return False, "MySQL error"
+
+
 def get_user_by_id(user_id):
     query = "SELECT * FROM USER WHERE USERID = " + str(user_id)
     print user_id

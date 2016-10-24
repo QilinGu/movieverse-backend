@@ -20,9 +20,17 @@ def add_user(json_body):
     return jsonify({'success': insert, 'message': message})
 
 def get_user_by_id(user_id):
-    print user_id
     success, person, message = user_model.get_user_by_id(user_id)
     return jsonify({'success': success, 'person': person, 'message':message})
+
+def update_user_by_id(user_id, json_body):
+    existing, person, message = user_model.get_user_by_id(user_id)
+    if not existing:
+        return jsonify({'success': False, 'message': message})
+    else:
+        success, message = user_model.update_user_by_id(user_id, json_body['FIRST_NAME'], json_body[
+            'LAST_NAME'], json_body['AGE'])
+        return jsonify({'success': success, 'message': message})
 
 def get_user_by_email_search(email_id):
     success, person, message = user_model.get_user_by_email_search(email_id)
