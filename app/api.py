@@ -1,7 +1,7 @@
 #!flask/bin/python
 from flask import jsonify
 import models
-from models import user_model, movie_model
+from models import user_model, movie_model, actor_model
 import hashlib
 
 
@@ -42,6 +42,7 @@ def get_user_by_email_search(email_id):
 
 def get_movie_by_id(movie_id):
     success, movie, message = movie_model.get_movie_by_id(movie_id)
+    actors = None
     if success:
         actors = actor_model.get_actors_by_movie_id(movie_id)
     return jsonify({'success': success, 'movie': movie, 'actors': actors, 'message': message})

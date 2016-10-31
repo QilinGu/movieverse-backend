@@ -16,9 +16,9 @@ def check_existing_user(email):
     check_query = "SELECT * FROM USER WHERE EMAIL = '%s'" % email
     try:
         x = cursor.execute(check_query)
-        if x > 0:
+        if x != 0:
             return True, "User Exists"
-        return False
+        return False, None
     except MySQL.Error as e:
         conn.rollback()
         raise
