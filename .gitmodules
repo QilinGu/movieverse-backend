@@ -1,0 +1,6 @@
+[submodule "movieverse-sentiment_analysis"]
+	path = movieverse-sentiment_analysis
+	url = git@gitlab-beta.engr.illinois.edu:forkbomb/movieverse-sentiment_analysis.git
+[submodule "movieverse-recommendation_system"]
+	path = movieverse-recommendation_system
+	url = git@gitlab-beta.engr.illinois.edu:forkbomb/movieverse-recommendation_system.git
