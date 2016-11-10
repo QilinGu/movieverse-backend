@@ -2,17 +2,23 @@
 from flask import jsonify
 import MySQLdb as MySQL
 
+HOST = "127.0.0.1"
+USER = "root"
+PASSWORD = "cs411fa2016"
+DB = "imdb"
 
-try:
-    conn = MySQL.connect(host="127.0.0.1", user="root", passwd="cs411fa2016", db="imdb")
-    cursor = conn.cursor()
-except MySQL.Error as e:
-    print "SQL Connection Error"
-    conn.rollback()
-    raise
 
 
 def check_existing_user(email):
+    try:
+        conn = MySQL.connect(host=HOST, user=USER, passwd=PASSWORD, db=DB)
+        cursor = conn.cursor()
+    except MySQL.Error as e:
+        print "SQL Connection Error"
+        conn.rollback()
+        raise
+        return False, "MySQL error"
+
     check_query = "SELECT * FROM USER WHERE EMAIL = '%s'" % email
     try:
         x = cursor.execute(check_query)
@@ -26,6 +32,14 @@ def check_existing_user(email):
 
 
 def add_user(first_name, last_name, email, age, password):
+    try:
+        conn = MySQL.connect(host=HOST, user=USER, passwd=PASSWORD, db=DB)
+        cursor = conn.cursor()
+    except MySQL.Error as e:
+        print "SQL Connection Error"
+        conn.rollback()
+        raise
+        return False, "MySQL error"
     insert_query = "INSERT INTO USER(FIRST_NAME, LAST_NAME, EMAIL, AGE, PASSWORD) \
         VALUES ('%s', '%s', '%s', '%d', '%s' )" % (first_name, last_name, email, age, password)
     try:
@@ -39,6 +53,14 @@ def add_user(first_name, last_name, email, age, password):
 
 
 def update_user_by_id(user_id, first_name, last_name, age):
+    try:
+        conn = MySQL.connect(host=HOST, user=USER, passwd=PASSWORD, db=DB)
+        cursor = conn.cursor()
+    except MySQL.Error as e:
+        print "SQL Connection Error"
+        conn.rollback()
+        raise
+        return False, "MySQL error"
     update_query = "UPDATE USER SET FIRST_NAME='%s', LAST_NAME='%s',  AGE='%d' WHERE USERID='%d'" % (
         first_name, last_name, age, user_id)
     try:
@@ -52,6 +74,14 @@ def update_user_by_id(user_id, first_name, last_name, age):
 
 
 def get_user_by_id(user_id):
+    try:
+        conn = MySQL.connect(host=HOST, user=USER, passwd=PASSWORD, db=DB)
+        cursor = conn.cursor()
+    except MySQL.Error as e:
+        print "SQL Connection Error"
+        conn.rollback()
+        raise
+        return False, None, "MySQL error"
     query = "SELECT * FROM USER WHERE USERID = " + str(user_id)
     print user_id
     try:
@@ -79,6 +109,14 @@ def get_user_by_id(user_id):
 
 
 def get_user_by_email_search(email_id):
+    try:
+        conn = MySQL.connect(host=HOST, user=USER, passwd=PASSWORD, db=DB)
+        cursor = conn.cursor()
+    except MySQL.Error as e:
+        print "SQL Connection Error"
+        conn.rollback()
+        raise
+        return False, None, "MySQL error"
     query = "SELECT * FROM USER WHERE EMAIL = '%s'" % email_id
     try:
         x = cursor.execute(query)

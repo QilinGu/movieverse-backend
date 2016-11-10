@@ -3,6 +3,8 @@ from flask import jsonify
 import models
 from models import user_model, movie_model, actor_model
 import hashlib
+import urllib2
+
 
 
 def add_user(json_body):
@@ -44,9 +46,14 @@ def get_movie_by_id(movie_id):
     success, movie, message = movie_model.get_movie_by_id(movie_id)
     actors = None
     if success:
+        movie['Poster'] = get_movie_image_url(movie)
         actors = actor_model.get_actors_by_movie_id(movie_id)
     return jsonify({'success': success, 'movie': movie, 'actors': actors, 'message': message})
 
+def get_movie_image_url(movie):
+    base = "http://www.omdbapi.com/?t="
+    movie_info = urllib2.urlopen(base+movie['Name']).read()
+    return movie_info['Poster']
 
 def get_movies_by_name_search(search_string):
     success, movies, message = movie_model.get_movies_by_name_search(search_string)
