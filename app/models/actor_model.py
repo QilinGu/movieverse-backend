@@ -29,8 +29,8 @@ def get_actors_by_movie_id(movie_id):
 
         actors = []
         for result in results:
-            actor_id = result[0]
-            actor_name = result[1]
+            actor_id = result[1]
+            actor_name = result[0]
 
             actor = {"ActorID": actor_id, "Name": actor_name}
             actors.append(actor)
