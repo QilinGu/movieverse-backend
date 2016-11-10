@@ -82,8 +82,17 @@ def get_movie_image_url(movie):
         'safeSearch': 'Moderate',
         'size': 'Large'
     })
+    params2 = urllib.urlencode({
+        # Request parameters
+        'q':  movie['Name'] + " movie poster alternate",
+        'count': '1',
+        'offset': '0',
+        'mkt': 'en-us',
+        'safeSearch': 'Moderate',
+        'size': 'Medium'
+    })
     cover_url = ""
-
+    thumbnail_url = ""
     try:
         conn = httplib.HTTPSConnection('api.cognitive.microsoft.com')
         conn.request("GET", "/bing/v5.0/images/search?%s" % params, "{body}", headers)
@@ -92,11 +101,19 @@ def get_movie_image_url(movie):
         cover_url = json.loads(data)['value'][0]["contentUrl"].encode('ISO-8859-1')
         conn.close()
     except Exception as e:
-        print("[Errno {0}] {1}".format(e.errno, e.strerror))
-    omdb_base = "http://www.omdbapi.com/?t="
-    movie_info_omdb = urllib2.urlopen(omdb_base + movie['Name']).read()
-    movie_info_omdb = json.loads(movie_info_omdb)
-    return cover_url, movie_info_omdb["Poster"].encode('ISO-8859-1')
+        print e
+
+
+    try:
+        conn = httplib.HTTPSConnection('api.cognitive.microsoft.com')
+        conn.request("GET", "/bing/v5.0/images/search?%s" % params2, "{body}", headers)
+        response = conn.getresponse()
+        data = response.read()
+        thumbnail_url = json.loads(data)['value'][0]["contentUrl"].encode('ISO-8859-1')
+        conn.close()
+    except Exception as e:
+        print e
+    return cover_url, thumbnail_url
 
 
 def get_movies_by_name_search(search_string):
