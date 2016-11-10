@@ -53,6 +53,15 @@ def get_movies_by_name_search():
 def get_actor_by_id(actor_id):
     return api.get_actor_by_id(actor_id)
 
+@app.route(API_ROOT + '/reviews/<int:review_id>', methods=['GET'])
+@cross_origin(origin='*')
+def get_review_by_id(review_id):
+    return api.get_review_by_id(review_id)
+
+@app.route(API_ROOT + '/reviews', methods=['POST'])
+@cross_origin(origin='*')
+def add_review():
+    return api.add_review(request.json)
 
 if __name__ == '__main__':
     app.config['JSON_AS_ASCII'] = False

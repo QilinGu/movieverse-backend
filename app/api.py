@@ -3,7 +3,7 @@ from flask import jsonify
 import requests
 from bs4 import BeautifulSoup
 import models
-from models import user_model, movie_model, actor_model
+from models import user_model, movie_model, actor_model, director_model
 import hashlib
 import urllib2
 import json
@@ -65,7 +65,8 @@ def get_movie_by_id(movie_id):
         movie['Poster'] = cover_url
         movie['Thumbnail'] = thumb_url
         actors = actor_model.get_actors_by_movie_id(movie_id)
-    return jsonify({'success': success, 'movie': movie, 'actors': actors, 'message': message})
+        directors = director_model.get_directors_by_movie_id(movie_id)
+    return jsonify({'success': success, 'movie': movie, 'actors': actors, 'directors':directors, 'message': message})
 
 
 def get_movie_image_url(movie):
@@ -123,3 +124,15 @@ def get_movies_by_name_search(search_string):
 
 def get_actor_by_id(actor_id):
     return jsonify({'actor_id': actor_id})
+
+
+def get_review_by_id(review_id):
+    return jsonify({'review_id':review_id})
+
+
+def add_review(json_body):
+    user_id = json_body['UserID']
+    movie_id = json_body['MovieID']
+    text = json_body['review_text']
+
+    return jsonify({'message':'review added', 'ReviewID':0})

@@ -9,7 +9,7 @@ PASSWORD = "cs411fa2016"
 DB = "imdb"
 
 
-def get_actors_by_movie_id(movie_id):
+def get_directors_by_movie_id(movie_id):
     try:
         conn = MySQL.connect(host=HOST, user=USER, passwd=PASSWORD, db=DB)
         cursor = conn.cursor()
@@ -19,7 +19,7 @@ def get_actors_by_movie_id(movie_id):
         raise
         return None
 
-    query = "SELECT Name, ActorID FROM Actor WHERE ActorID IN ( SELECT MovieActor.ActorID FROM Movie INNER JOIN MovieActor ON MovieActor.MovieID = Movie.MovieID WHERE Movie.MovieID = %d )" % movie_id
+    query = "SELECT Name, DirectorID FROM Director WHERE DirectorID IN ( SELECT MovieDirector.DirectorID FROM Movie INNER JOIN MovieDirector ON MovieDirector.MovieID = Movie.MovieID WHERE Movie.MovieID = %d )" % movie_id
     try:
         x = cursor.execute(query)
         if x == 0:
@@ -27,16 +27,16 @@ def get_actors_by_movie_id(movie_id):
 
         results = cursor.fetchall()
 
-        actors = []
+        directors = []
         for result in results:
-            actor_id = result[1]
-            actor_name = result[0]
+            director_id = result[1]
+            director_name = result[0]
 
-            actor = {"ActorID": actor_id, "Name": actor_name}
-            actors.append(actor)
+            director = {"DirectorID": director_id, "Name": director_name}
+            directors.append(director)
 
-        actors = json.dumps(actors, ensure_ascii=False)
-        return actors
+        directors = json.dumps(directors, ensure_ascii=False)
+        return directors
 
     except MySQL.Error as e:
         conn.rollback()
