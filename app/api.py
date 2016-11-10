@@ -4,8 +4,10 @@ import models
 from models import user_model, movie_model, actor_model
 import hashlib
 import urllib2
-
-
+import json
+import sys
+reload(sys)
+sys.setdefaultencoding('utf-8')
 
 def add_user(json_body):
     existing, message = user_model.check_existing_user(json_body['EMAIL'])
@@ -53,7 +55,8 @@ def get_movie_by_id(movie_id):
 def get_movie_image_url(movie):
     base = "http://www.omdbapi.com/?t="
     movie_info = urllib2.urlopen(base+movie['Name']).read()
-    return movie_info['Poster']
+    movie_info = json.loads(movie_info)
+    return movie_info["Poster"].encode('ISO-8859-1')
 
 def get_movies_by_name_search(search_string):
     success, movies, message = movie_model.get_movies_by_name_search(search_string)
