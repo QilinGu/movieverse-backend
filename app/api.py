@@ -16,6 +16,9 @@ import re
 
 sys.setdefaultencoding('utf-8')
 
+
+KEYS = ["cae8ee8947314188aec462dcce894576","667b142f74de4f949c28ce442964b8a5","38a6b7556ce94984bb238b9785c556c2"]
+key_index = 0
 HOST = "127.0.0.1"
 USER = "root"
 PASSWORD = "cs411fa2016"
@@ -72,7 +75,7 @@ def get_movie_by_id(movie_id):
 def get_movie_image_url(movie):
     headers = {
         # Request headers
-        'Ocp-Apim-Subscription-Key': '09a829ae3d0d4e07b0cf605391d2a469',
+        'Ocp-Apim-Subscription-Key': KEYS[key_index],
     }
     params = urllib.urlencode({
         # Request parameters
@@ -99,6 +102,9 @@ def get_movie_image_url(movie):
         conn.request("GET", "/bing/v5.0/images/search?%s" % params, "{body}", headers)
         response = conn.getresponse()
         data = response.read()
+        if data['statusCode'] == 403:
+            key_index += 1
+            return get_movie_image_url(movie)
         cover_url = json.loads(data)['value'][0]["contentUrl"].encode('ISO-8859-1')
         conn.close()
     except Exception as e:
@@ -110,6 +116,10 @@ def get_movie_image_url(movie):
         conn.request("GET", "/bing/v5.0/images/search?%s" % params2, "{body}", headers)
         response = conn.getresponse()
         data = response.read()
+        if data['statusCode'] == 403:
+            key_index += 1
+            return get_movie_image_url(movie)
+
         thumbnail_url = json.loads(data)['value'][0]["contentUrl"].encode('ISO-8859-1')
         conn.close()
     except Exception as e:
