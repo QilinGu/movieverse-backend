@@ -83,6 +83,17 @@ def build_user_profile():
     return api.build_user_profile(request.json)
 
 
+@app.route(API_ROOT + '/recommendations', methods=['POST'])
+@cross_origin(origin='*')
+def get_recommended_movies():
+    return api.get_recommended_movies(request.json)
+
+
+@app.route(API_ROOT + '/staffpicks', methods=['GET'])
+@cross_origin(origin='*')
+def get_staff_picks():
+    return api.get_staff_picks()
+
 if __name__ == '__main__':
     app.config['JSON_AS_ASCII'] = False
     app.run(debug=True, host='0.0.0.0')

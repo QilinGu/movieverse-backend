@@ -18,7 +18,7 @@ def get_movie_by_id(movie_id):
         conn.rollback()
         raise
         return False, None, "SQL connection error"
-    query = "SELECT * FROM Movie WHERE MovieID = " + str(movie_id)
+    query = "SELECT * FROM Movie1 WHERE MovieID = " + str(movie_id)
     try:
         x = cursor.execute(query)
         if x == 0:
@@ -51,7 +51,7 @@ def get_movies_by_name_search(movie_name):
         conn.rollback()
         raise
         return False, None, "SQL connection error"
-    query = "SELECT * FROM Movie WHERE Name LIKE '%%%s%%'" % movie_name
+    query = "SELECT * FROM Movie1 WHERE Name LIKE '%%%s%%'" % movie_name
     try:
         x = cursor.execute(query)
         if x == 0:

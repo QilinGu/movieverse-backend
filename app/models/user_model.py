@@ -1,6 +1,7 @@
 #!flask/bin/python
 from flask import jsonify
 import MySQLdb as MySQL
+import traceback
 
 HOST = "127.0.0.1"
 USER = "root"
@@ -30,7 +31,7 @@ def check_existing_user(email):
         return True, "SQL connection error"
 
 
-def add_user(first_name, last_name, email, age, password):
+def add_user(first_name, last_name, email, age, password, runtime, year, occupation, gender):
     try:
         conn = MySQL.connect(host=HOST, user=USER, passwd=PASSWORD, db=DB)
         cursor = conn.cursor()
@@ -39,14 +40,15 @@ def add_user(first_name, last_name, email, age, password):
         conn.rollback()
         raise
         return False, "MySQL error"
-    insert_query = "INSERT INTO USER(FIRST_NAME, LAST_NAME, EMAIL, AGE, PASSWORD) \
-        VALUES ('%s', '%s', '%s', '%d', '%s' )" % (first_name, last_name, email, age, password)
+    insert_query = "INSERT INTO USER VALUES(FIRST_NAME, LAST_NAME, EMAIL, AGE, PASSWORD, Runtime, Year, OCCUPATION, GENDER) \
+        VALUES ('%s', '%s', '%s', '%d', '%s', '%d', '%d', '%s', '%s' )" % (first_name, last_name, email, age, password, runtime, year, occupation, gender)
     try:
         cursor.execute(insert_query)
         conn.commit()
         _id = cursor.lastrowid
         return _id
     except MySQL.Error as e:
+        traceback.print_exc()
         conn.rollback()
         return -1
 

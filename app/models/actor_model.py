@@ -19,7 +19,7 @@ def get_actors_by_movie_id(movie_id):
         raise
         return None
 
-    query = "SELECT Name, ActorID FROM Actor WHERE ActorID IN ( SELECT MovieActor.ActorID FROM Movie INNER JOIN MovieActor ON MovieActor.MovieID = Movie.MovieID WHERE Movie.MovieID = %d )" % movie_id
+    query = "SELECT Name, ActorID FROM Actor1 WHERE ActorID IN ( SELECT MovieActor1.ActorID FROM Movie1 INNER JOIN MovieActor1 ON MovieActor1.MovieID = Movie1.MovieID WHERE Movie1.MovieID = %d )" % movie_id
     try:
         x = cursor.execute(query)
         if x == 0:

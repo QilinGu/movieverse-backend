@@ -19,7 +19,7 @@ import sentiment_analysis
 from sentiment_analysis import sentiment
 
 import recommendation_system
-from recommendation_system import profile_builder
+from recommendation_system import profile_builder, rec
 
 reload(sys)
 import re
@@ -45,7 +45,7 @@ def add_user(json_body):
     password = h.hexdigest()
 
     _id = user_model.add_user(json_body['FIRST_NAME'], json_body[
-        'LAST_NAME'], json_body['EMAIL'], json_body['AGE'], password)
+        'LAST_NAME'], json_body['EMAIL'], json_body['AGE'], password, json_body['Runtime'], json_body['Year'], json_body['Occupation'], json_body['GENDER'])
 
     return jsonify({'UserID': _id})
 
@@ -81,65 +81,28 @@ def get_movie_by_id(movie_id):
         movie['Thumbnail'] = thumb_url
         actors = actor_model.get_actors_by_movie_id(movie_id)
         directors = director_model.get_directors_by_movie_id(movie_id)
-    return jsonify({'success': success, 'movie': movie, 'actors': actors, 'directors':directors, 'message': message})
+        reviews = review_model.get_reviews_by_movie_id(movie_id)
+        sentiment = review_model.percentage(reviews)
+    return jsonify({'success': success, 'movie': movie, 'actors': actors, 'directors':directors, 'message': message, 'reviews':reviews, 'sentiment':sentiment})
 
 
 def get_movie_image_url(movie):
-    global key_index, KEYS
-    headers = {
-        # Request headers
-        'Ocp-Apim-Subscription-Key': KEYS[key_index],
-    }
     params = urllib.urlencode({
         # Request parameters
-        'q': movie['Name'] + " movie poster",
-        'count': '1',
-        'offset': '0',
-        'mkt': 'en-us',
-        'safeSearch': 'Moderate',
-        'size': 'Wallpaper'
-    })
-    params2 = urllib.urlencode({
-        # Request parameters
-        'q':  movie['Name'] + " movie poster",
-        'count': '1',
-        'offset': '0',
-        'mkt': 'en-us',
-        'safeSearch': 'Moderate',
-        'size': 'Large  '
+        'api_key': "091d974f91fed5279d0e314a34c300d3",
+        'query': movie['Name']
     })
     cover_url = ""
     thumbnail_url = ""
     try:
-        conn = httplib.HTTPSConnection('api.cognitive.microsoft.com')
-        conn.request("GET", "/bing/v5.0/images/search?%s" % params, "{body}", headers)
+        conn = httplib.HTTPSConnection('api.themoviedb.org')
+        conn.request("GET", "/3/search/movie?%s" % params, "{body}")
         response = conn.getresponse()
         data = json.loads(response.read())
-        try:
-            if data['statusCode'] == 403:
-                key_index += 1
-                return get_movie_image_url(movie)
-        except:
-            cover_url = data['value'][0]["contentUrl"].encode('ISO-8859-1')
+        thumbnail_url = "https://image.tmdb.org/t/p/w500/"+data['results'][0]["poster_path"].split('\/')[0].encode('ISO-8859-1')
+        cover_url = "https://image.tmdb.org/t/p/w1000/"+data['results'][0]["backdrop_path"].split('\/')[0].encode('ISO-8859-1')
         conn.close()
     except Exception as e:
-        traceback.print_exc()
-
-
-    try:
-        conn = httplib.HTTPSConnection('api.cognitive.microsoft.com')
-        conn.request("GET", "/bing/v5.0/images/search?%s" % params2, "{body}", headers)
-        response = conn.getresponse()
-        data = json.loads(response.read())
-        try:
-            if data['statusCode'] == 403:
-                key_index += 1
-                return get_movie_image_url(movie)
-        except:
-            thumbnail_url = data['value'][0]["contentUrl"].encode('ISO-8859-1')
-        conn.close()
-    except Exception as e:
-        print e
         traceback.print_exc()
 
     return cover_url, thumbnail_url
@@ -157,7 +120,8 @@ def get_actor_by_id(actor_id):
 
 #REVIEWS
 def get_review_by_id(review_id):
-    return jsonify({'review_id':review_id})
+    review ,author =  review_model.get_review_by_id(review_id)
+    return jsonify({'Review':review, 'Author':author})
 
 
 def add_review(json_body):
@@ -186,18 +150,38 @@ def add_review(json_body):
 
     return jsonify({'message':'review added', 'ReviewID':_id, 'Error': False, 'Text': text, 'UserID':user_id, 'MovideID':movie_id})
 
+my_ask = []
 
 #RECOMMENDATIONS
 def get_initial_reco_movies():
-    movies = profile_builder.supply_sample_movies()
-    return jsonify({'Movies':movies})
+    sample_movies, ask = profile_builder.main_function(0, None, None, None, None, None, None)
+    global my_ask
+    my_ask = ask
+    return jsonify({'Movies':sample_movies})
 
 
 def build_user_profile(json_body):
     ratings = json_body['Ratings']
+    int_ratings = []
+    for rating in ratings:
+        int_ratings.append(int(rating))
+    print ratings, int_ratings
     user_id = json_body['UserID']
     existing, person, message = user_model.get_user_by_id(user_id)
 
-    genres = profile_builder.return_preferred_genres(ratings, person["AGE"], person["Gender"], person["Occupation"], user_id)
+    genres = profile_builder.main_function(1, int_ratings, person["AGE"], person["Gender"], person["Occupation"], my_ask, user_id)
 
     return jsonify({'Genres':genres})
+
+def get_recommended_movies(json_body):
+    user_id = json_body['UserID']
+    movies, movieids = rec.tryrec(user_id)
+    print movies
+    print movieids
+
+    return jsonify({'Movies': movieids})
+
+
+def get_staff_picks():
+    staff_list = [2872518,3029194, 3735918, 3169861, 3803644,3689621]
+    return jsonify({'Movies': staff_list})
