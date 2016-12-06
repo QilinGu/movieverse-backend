@@ -15,8 +15,7 @@ import sys
 import models
 from models import user_model, movie_model, actor_model, director_model
 
-
-import movieverse-sentiment_analysis as SENT
+import sentiment_analysis as SENT
 from SENT import sentiment
 
 
