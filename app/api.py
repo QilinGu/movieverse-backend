@@ -18,6 +18,8 @@ from models import user_model, movie_model, actor_model, director_model, review_
 import sentiment_analysis
 from sentiment_analysis import sentiment
 
+import recommendation_system
+from recommendation_system import profile_builder
 
 reload(sys)
 import re
@@ -185,3 +187,9 @@ def add_review(json_body):
     review_model.add_movie_review_entry(movie_id, _id)
 
     return jsonify({'message':'review added', 'ReviewID':_id, 'Error': False, 'Text': text, 'UserID':user_id, 'MovideID':movie_id})
+
+
+#RECOMMENDATIONS
+def get_initial_reco_movies():
+    print profile_builder.supply_sample_movies()
+    return jsonify({'review_id':1})

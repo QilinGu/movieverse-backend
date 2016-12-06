@@ -69,6 +69,13 @@ def get_review_by_id(review_id):
 def add_review():
     return api.add_review(request.json)
 
+
+#RECOMMENDATIONS
+@app.route(API_ROOT + '/initmovies', methods=['GET'])
+@cross_origin(origin='*')
+def add_review():
+    return api.get_initial_reco_movies()
+
 if __name__ == '__main__':
     app.config['JSON_AS_ASCII'] = False
     app.run(debug=True, host='0.0.0.0')
