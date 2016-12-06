@@ -13,7 +13,6 @@ def add_review(review_text, sentiment):
         conn = MySQL.connect(host=HOST, user=USER, passwd=PASSWORD, db=DB)
         cursor = conn.cursor()
     except MySQL.Error as e:
-        print -1
         conn.rollback()
         raise
         return -1
@@ -34,7 +33,6 @@ def add_user_review_entry(user_id, review_id):
         conn = MySQL.connect(host=HOST, user=USER, passwd=PASSWORD, db=DB)
         cursor = conn.cursor()
     except MySQL.Error as e:
-        print -1
         conn.rollback()
         raise
         return -1
@@ -56,7 +54,6 @@ def add_movie_review_entry(movie_id, review_id):
         conn = MySQL.connect(host=HOST, user=USER, passwd=PASSWORD, db=DB)
         cursor = conn.cursor()
     except MySQL.Error as e:
-        print -1
         conn.rollback()
         raise
         return -1

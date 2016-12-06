@@ -44,10 +44,10 @@ def add_user(json_body):
     h = hashlib.md5(password.encode())
     password = h.hexdigest()
 
-    insert, message = user_model.add_user(json_body['FIRST_NAME'], json_body[
+    _id = user_model.add_user(json_body['FIRST_NAME'], json_body[
         'LAST_NAME'], json_body['EMAIL'], json_body['AGE'], password)
 
-    return jsonify({'success': insert, 'message': message})
+    return jsonify({'UserID': _id})
 
 
 def get_user_by_id(user_id):
@@ -115,7 +115,6 @@ def get_movie_image_url(movie):
         conn.request("GET", "/bing/v5.0/images/search?%s" % params, "{body}", headers)
         response = conn.getresponse()
         data = json.loads(response.read())
-        print data
         try:
             if data['statusCode'] == 403:
                 key_index += 1
@@ -124,7 +123,6 @@ def get_movie_image_url(movie):
             cover_url = data['value'][0]["contentUrl"].encode('ISO-8859-1')
         conn.close()
     except Exception as e:
-        print e
         traceback.print_exc()
 
 
@@ -191,5 +189,15 @@ def add_review(json_body):
 
 #RECOMMENDATIONS
 def get_initial_reco_movies():
-    print profile_builder.supply_sample_movies()
-    return jsonify({'review_id':1})
+    movies = profile_builder.supply_sample_movies()
+    return jsonify({'Movies':movies})
+
+
+def build_user_profile(json_body):
+    ratings = json_body['Ratings']
+    user_id = json_body['UserID']
+    existing, person, message = user_model.get_user_by_id(user_id)
+
+    genres = profile_builder.return_preferred_genres(ratings, person["AGE"], person["Gender"], person["Occupation"], user_id)
+
+    return jsonify({'Genres':genres})

@@ -8,7 +8,6 @@ PASSWORD = "cs411fa2016"
 DB = "imdb"
 
 
-
 def check_existing_user(email):
     try:
         conn = MySQL.connect(host=HOST, user=USER, passwd=PASSWORD, db=DB)
@@ -45,11 +44,11 @@ def add_user(first_name, last_name, email, age, password):
     try:
         cursor.execute(insert_query)
         conn.commit()
-        return True, "User added successfully"
+        _id = cursor.lastrowid
+        return _id
     except MySQL.Error as e:
         conn.rollback()
-        raise
-        return False, "MySQL error"
+        return -1
 
 
 def update_user_by_id(user_id, first_name, last_name, age):
@@ -83,7 +82,6 @@ def get_user_by_id(user_id):
         raise
         return False, None, "MySQL error"
     query = "SELECT * FROM USER WHERE USERID = " + str(user_id)
-    print user_id
     try:
         x = cursor.execute(query)
         if x == 0:
@@ -96,9 +94,14 @@ def get_user_by_id(user_id):
         last_name = result[2]
         email = result[3]
         age = result[4]
+        password = result[5]
+        runtime = result[6]
+        year = result[7]
+        occupation = result[8]
+        gender = result[9]
 
         person = {"USERID": userid, "FIRST_NAME": first_name,
-                  "LAST_NAME": last_name, "EMAIL": email, "AGE": age}
+                  "LAST_NAME": last_name, "EMAIL": email, "AGE": age, "Password":password, "Runtime":runtime, "Year":year,"Occupation": occupation, "Gender": gender}
 
         return True, person, "Person found"
 

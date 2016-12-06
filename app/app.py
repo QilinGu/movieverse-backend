@@ -73,8 +73,15 @@ def add_review():
 #RECOMMENDATIONS
 @app.route(API_ROOT + '/initmovies', methods=['GET'])
 @cross_origin(origin='*')
-def add_review():
+def get_initial_reco_movies():
     return api.get_initial_reco_movies()
+
+
+@app.route(API_ROOT + '/initmovies', methods=['POST'])
+@cross_origin(origin='*')
+def build_user_profile():
+    return api.build_user_profile(request.json)
+
 
 if __name__ == '__main__':
     app.config['JSON_AS_ASCII'] = False
