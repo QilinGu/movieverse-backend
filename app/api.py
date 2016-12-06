@@ -1,9 +1,9 @@
 #!flask/bin/python
 from flask import jsonify
-import requests
 from bs4 import BeautifulSoup
-import models
-from models import user_model, movie_model, actor_model, director_model
+
+import traceback
+import requests
 import hashlib
 import urllib2
 import json
@@ -11,6 +11,15 @@ import httplib
 import urllib
 import base64
 import sys
+
+import models
+from models import user_model, movie_model, actor_model, director_model
+
+
+import movieverse-sentiment_analysis as SENT
+from SENT import sentiment
+
+
 reload(sys)
 import re
 
@@ -24,7 +33,7 @@ USER = "root"
 PASSWORD = "cs411fa2016"
 DB = "imdb"
 
-
+#USERS
 def add_user(json_body):
     existing, message = user_model.check_existing_user(json_body['EMAIL'])
     if existing:
@@ -60,8 +69,10 @@ def get_user_by_email_search(email_id):
     return jsonify({'success': success, 'person': person, 'message': message})
 
 
+#MOVIES
 def get_movie_by_id(movie_id):
     success, movie, message = movie_model.get_movie_by_id(movie_id)
+    directors = None
     actors = None
     if success:
         cover_url, thumb_url = get_movie_image_url(movie)
@@ -73,6 +84,7 @@ def get_movie_by_id(movie_id):
 
 
 def get_movie_image_url(movie):
+    global key_index, KEYS
     headers = {
         # Request headers
         'Ocp-Apim-Subscription-Key': KEYS[key_index],
@@ -84,16 +96,16 @@ def get_movie_image_url(movie):
         'offset': '0',
         'mkt': 'en-us',
         'safeSearch': 'Moderate',
-        'size': 'Large'
+        'size': 'Wallpaper'
     })
     params2 = urllib.urlencode({
         # Request parameters
-        'q':  movie['Name'] + " movie poster alternate",
+        'q':  movie['Name'] + " movie poster",
         'count': '1',
         'offset': '0',
         'mkt': 'en-us',
         'safeSearch': 'Moderate',
-        'size': 'Medium'
+        'size': 'Large  '
     })
     cover_url = ""
     thumbnail_url = ""
@@ -101,29 +113,36 @@ def get_movie_image_url(movie):
         conn = httplib.HTTPSConnection('api.cognitive.microsoft.com')
         conn.request("GET", "/bing/v5.0/images/search?%s" % params, "{body}", headers)
         response = conn.getresponse()
-        data = response.read()
-        if data['statusCode'] == 403:
-            key_index += 1
-            return get_movie_image_url(movie)
-        cover_url = json.loads(data)['value'][0]["contentUrl"].encode('ISO-8859-1')
+        data = json.loads(response.read())
+        print data
+        try:
+            if data['statusCode'] == 403:
+                key_index += 1
+                return get_movie_image_url(movie)
+        except:
+            cover_url = data['value'][0]["contentUrl"].encode('ISO-8859-1')
         conn.close()
     except Exception as e:
         print e
+        traceback.print_exc()
 
 
     try:
         conn = httplib.HTTPSConnection('api.cognitive.microsoft.com')
         conn.request("GET", "/bing/v5.0/images/search?%s" % params2, "{body}", headers)
         response = conn.getresponse()
-        data = response.read()
-        if data['statusCode'] == 403:
-            key_index += 1
-            return get_movie_image_url(movie)
-
-        thumbnail_url = json.loads(data)['value'][0]["contentUrl"].encode('ISO-8859-1')
+        data = json.loads(response.read())
+        try:
+            if data['statusCode'] == 403:
+                key_index += 1
+                return get_movie_image_url(movie)
+        except:
+            thumbnail_url = data['value'][0]["contentUrl"].encode('ISO-8859-1')
         conn.close()
     except Exception as e:
         print e
+        traceback.print_exc()
+
     return cover_url, thumbnail_url
 
 
@@ -132,10 +151,12 @@ def get_movies_by_name_search(search_string):
     return jsonify({'success': success, 'movies': movies, 'message': message})
 
 
+#ACTORS
 def get_actor_by_id(actor_id):
     return jsonify({'actor_id': actor_id})
 
 
+#REVIEWS
 def get_review_by_id(review_id):
     return jsonify({'review_id':review_id})
 
@@ -144,5 +165,15 @@ def add_review(json_body):
     user_id = json_body['UserID']
     movie_id = json_body['MovieID']
     text = json_body['review_text']
+
+    #get sentiment of review
+    sent = sentiment.analyse_review(text)
+    print sentiment
+    #update review table
+
+    #update user_review table
+
+    #update movie_review table
+
 
     return jsonify({'message':'review added', 'ReviewID':0})
