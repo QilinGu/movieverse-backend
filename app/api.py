@@ -13,10 +13,10 @@ import base64
 import sys
 
 import models
-from models import user_model, movie_model, actor_model, director_model
+from models import user_model, movie_model, actor_model, director_model, review_model
 
-import sentiment_analysis as SENT
-from SENT import sentiment
+import sentiment_analysis
+from sentiment_analysis import sentiment
 
 
 reload(sys)
@@ -167,12 +167,21 @@ def add_review(json_body):
 
     #get sentiment of review
     sent = sentiment.analyse_review(text)
-    print sentiment
+
     #update review table
+    if sent == "positive":
+        binary_sent = 1
+    else:
+        binary_sent = 0
+
+    _id = review_model.add_review(text, binary_sent)
+    if(_id == -1):
+        return jsonify({'message':'review not added', 'Error': True})
 
     #update user_review table
+    review_model.add_user_review_entry(user_id, _id)
 
     #update movie_review table
+    review_model.add_movie_review_entry(movie_id, _id)
 
-
-    return jsonify({'message':'review added', 'ReviewID':0})
+    return jsonify({'message':'review added', 'ReviewID':_id, 'Error': False, 'Text': text, 'UserID':user_id, 'MovideID':movie_id})
